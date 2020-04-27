@@ -2,19 +2,20 @@
 #include <string>
 /* øπæ‡ ∏ÆΩ∫∆Æ */
 
-Reservation_client::Reservation_client(clientNode* client, flightNode* flight) //ª˝º∫¿⁄ 
+Reservation_node::Reservation_node(clientNode* client, flightNode* flight) //ª˝º∫¿⁄ 
 {
 	this->client = client;
 	this->flight = flight;
 	this->reserved = false;
+	this->prior = NULL; 
 	this->next = NULL;
 }
 
-void Reservation_client::reservationComplete() //¥Î±‚ªÛ≈¬ -> øπæ‡øœ∑· 
+void Reservation_node::reservationComplete() //¥Î±‚ªÛ≈¬ -> øπæ‡øœ∑· 
 {
 	this->reserved = true;
 }
-bool Reservation_client::status()const 
+bool Reservation_node::status()const 
 {
 	return reserved; //¥Î±‚ - false π›»Ø
 	                 //øπæ‡ - true π›»Ø 
@@ -24,20 +25,23 @@ bool Reservation_client::status()const
 Reservation_list::Reservation_list() //ª˝º∫¿⁄ 
 {
 	this->head = NULL;
+	this->cursor = NULL;
 }
 Reservation_list::~Reservation_list() { //º“∏Í¿⁄ 
 	clear();
 }
 
-void Reservation_list::insert_flight(Reservation_client* newNode) //«ÿ¥Á ∫Ò«‡±‚ø° øπæ‡ ∞Ì∞¥ ª¿‘ 
+void Reservation_list::insert_flight(Reservation_node* newNode) //«ÿ¥Á ∫Ò«‡±‚ø° øπæ‡ ∞Ì∞¥ ª¿‘ 
 {
+
+
 	if (isEmpty()) { //∞°¿Â √π ≥ÎµÂ∂Û∏È πŸ∑Œ head∑Œ «ÿ¡÷∞Ì ≥° 
 		head = newNode;
 		return;
 	}
 
-	Reservation_client* tmp = head;
-	Reservation_client* tmp_before = NULL;
+	Reservation_node* tmp = head;
+	Reservation_node* tmp_before = NULL;
 	while (tmp != NULL)
 	{
 		int order = tmp->client->Name.compare(newNode->client->Name); //ªÁ¿¸º¯ ∫Ò±≥ 
@@ -49,6 +53,8 @@ void Reservation_list::insert_flight(Reservation_client* newNode) //«ÿ¥Á ∫Ò«‡±‚ø
 		tmp_before = tmp;
 		tmp = tmp->next;
 	}
+	newNode->prior= tmp_before;
+	newNode->next= tmp;
 
 	if (tmp_before != NULL)
 	{
@@ -58,10 +64,13 @@ void Reservation_list::insert_flight(Reservation_client* newNode) //«ÿ¥Á ∫Ò«‡±‚ø
 	{
 		head = newNode;
 	}
-	newNode->next = tmp;
+	if (tmp != NULL) {
+		tmp->prior= newNode;
+	}
+
 }
 
-void Reservation_list::insert_client(Reservation_client* newNode, bool done) //∞Ì∞¥∫∞ øπæ‡∏ÆΩ∫∆Æø° øπæ‡ ª¿‘ ∫Ò«‡±‚ π¯»£º¯ 
+void Reservation_list::insert_client(Reservation_node* newNode, bool done) //∞Ì∞¥∫∞ øπæ‡∏ÆΩ∫∆Æø° øπæ‡ ª¿‘ ∫Ò«‡±‚ π¯»£º¯ 
 {
 	if (done == false)
 	{
@@ -73,8 +82,8 @@ void Reservation_list::insert_client(Reservation_client* newNode, bool done) //∞
 		head = newNode;
 		return;
 	}
-	Reservation_client* tmp = head;
-	Reservation_client* tmp_before = NULL;
+	Reservation_node* tmp = head;
+	Reservation_node* tmp_before = NULL;
 	while (tmp != NULL)
 	{
 		int order = tmp->flight->flightNumber.compare(newNode->flight->flightNumber); //ªÁ¿¸º¯ ∫Ò±≥ 
@@ -86,7 +95,8 @@ void Reservation_list::insert_client(Reservation_client* newNode, bool done) //∞
 		tmp_before = tmp;
 		tmp = tmp->next;
 	}
-
+	newNode->prior = tmp_before;
+	newNode->next = tmp;
 	if (tmp_before != NULL)
 	{
 		tmp_before->next = newNode;
@@ -94,13 +104,18 @@ void Reservation_list::insert_client(Reservation_client* newNode, bool done) //∞
 	if (tmp_before == NULL) {
 		head = newNode;
 	}
-	newNode->next = tmp;
-
+	if (tmp != NULL) {
+		tmp->prior = newNode;
+	}
 }
 
 bool Reservation_list::remove_flight(string name) //∫Ò«‡±‚¿« øπæ‡∏ÆΩ∫∆Æø°º≠ ∆Ø¡§ ∞Ì∞¥ ªË¡¶ 
 {
-	Reservation_client* data = retrieve_flight(name);
+	if (isEmpty()) {
+		cout << "list is empty!";
+		return false;
+	}
+	Reservation_node* data = retrieve_flight(name);
 	if (data == NULL)
 	{
 		cout << "«ÿ¥Á ∞Ì∞¥¿« øπæ‡ ¡§∫∏∏¶ √£¿ª ºˆ æ¯Ω¿¥œ¥Ÿ. " << endl;
@@ -109,22 +124,30 @@ bool Reservation_list::remove_flight(string name) //∫Ò«‡±‚¿« øπæ‡∏ÆΩ∫∆Æø°º≠ ∆Ø¡§
 	if (data == head)  //ªË¡¶«“ µ•¿Ã≈Õ∞° list¿« head∂Û∏È, 
 	{
 		head = data->next;
+		if (data->next!= NULL) { //next∞° null¿Ã æ∆¥œ∂Û∏È  
+			data->next->prior= NULL; //next¿« prior∏¶ null∞™¿∏∑Œ ∫Ø∞Ê (head∞° ªË¡¶µ«π«∑Œ)
+		}
+
 		delete data;
 		return true;
 	}
 
-	Reservation_client* tmp = head;
-	while (tmp->next != data) {
-		tmp = tmp->next;
+	data->prior->next = data->next; 
+	if (data->next!= NULL) { //next∞° null∞™¿Ã æ∆¥œ∂Û∏È 
+		data->next->prior= data->prior;
 	}
-	tmp->next = data->next;
+	cout << "øœ∑·" << endl;
 	delete data;
 	return true;
 }
 
 void Reservation_list::remove_client(string flight_num) //∞Ì∞¥¿« øπæ‡∏ÆΩ∫∆Æø°º≠ ∆Ø¡§ ∫Ò«‡±‚ øπæ‡ ªË¡¶ 
 {
-	Reservation_client* data = retrieve_client(flight_num);
+	if (isEmpty()) {
+		cout << "list is empty!";
+		return;
+	}
+	Reservation_node* data = retrieve_client(flight_num);
 	if (data == NULL)
 	{
 		return;
@@ -132,21 +155,24 @@ void Reservation_list::remove_client(string flight_num) //∞Ì∞¥¿« øπæ‡∏ÆΩ∫∆Æø°º≠ 
 	if (data == head)  //ªË¡¶«“ µ•¿Ã≈Õ∞° list¿« head∂Û∏È, 
 	{
 		head = data->next;
+		if (data->next != NULL) { //next∞° null¿Ã æ∆¥œ∂Û∏È  
+			data->next->prior = NULL; //next¿« prior∏¶ null∞™¿∏∑Œ ∫Ø∞Ê (head∞° ªË¡¶µ«π«∑Œ)
+		}
+
 		delete data;
 		return;
 	}
 
-	Reservation_client* tmp = head;
-	while (tmp->next != data) {
-		tmp = tmp->next;
+	data->prior->next = data->next;
+	if (data->next != NULL) { //next∞° null∞™¿Ã æ∆¥œ∂Û∏È 
+		data->next->prior = data->prior;
 	}
-	tmp->next = data->next;
 	delete data;
 }
 
 
-Reservation_client* Reservation_list::retrieve_flight(string name)const {  //∫Ò«‡±‚¿« øπæ‡∏ÆΩ∫∆Æø°º≠ ∆Ø¡§∞Ì∞¥ √£±‚ 
-	Reservation_client* tmp = head;
+Reservation_node* Reservation_list::retrieve_flight(string name)const {  //∫Ò«‡±‚¿« øπæ‡∏ÆΩ∫∆Æø°º≠ ∆Ø¡§∞Ì∞¥ √£±‚ 
+	Reservation_node* tmp = head;
 	while (tmp != NULL)
 	{
 		if (tmp->client->Name == name) return tmp;
@@ -155,8 +181,8 @@ Reservation_client* Reservation_list::retrieve_flight(string name)const {  //∫Ò«
 	return NULL; //∏¯√£¿Ω 
 }
 
-Reservation_client* Reservation_list::retrieve_client(string flightNumber)const { //∞Ì∞¥¿« øπæ‡∏ÆΩ∫∆Æø°º≠ ∆Ø¡§ ∫Ò«‡±‚ √£±‚ 
-	Reservation_client* tmp = head;
+Reservation_node* Reservation_list::retrieve_client(string flightNumber)const { //∞Ì∞¥¿« øπæ‡∏ÆΩ∫∆Æø°º≠ ∆Ø¡§ ∫Ò«‡±‚ √£±‚ 
+	Reservation_node* tmp = head;
 	while (tmp != NULL)
 	{
 		if (tmp->flight->flightNumber == flightNumber) return tmp;
@@ -168,7 +194,7 @@ Reservation_client* Reservation_list::retrieve_client(string flightNumber)const 
 //«— ∫Ò«‡±‚∞° ≈Î¬∞∑Œ ªË¡¶µ… ∂ß ∞Ì∞¥¿« øπæ‡∏ÆΩ∫∆Æø° ¥Î«ÿ ªÁøÎ«œ¥¬ ªË¡¶«‘ºˆ
 void Reservation_list::removeAllinClientReservation(string flightNumber) //∞Ì∞¥¿« reservation listø°º≠ ∆Ø¡§flightNumber øπæ‡«ˆ»≤ ∏µŒ ªË¡¶ 
 {
-	Reservation_client* tmp = head;
+	Reservation_node* tmp = head;
 	while (tmp != NULL)
 	{
 		clientNode* client = tmp->client;
@@ -180,7 +206,7 @@ void Reservation_list::removeAllinClientReservation(string flightNumber) //∞Ì∞¥¿
 //«— ∞Ì∞¥¿Ã ≈Î¬∞∑Œ ªË¡¶µ… ∂ß ∫Ò«‡±‚¿« øπæ‡∏ÆΩ∫∆Æø° ¥Î«ÿ ªÁøÎ«œ¥¬ ªË¡¶«‘ºˆ 
 void Reservation_list::removeAllinFlightReservation(string name, ClientList& clientlist) //«ÿ¥Á flgiht -> reservation listø°º≠ name øπæ‡«ˆ»≤ ∏µŒ ªË¡¶ 
 {
-	Reservation_client* tmp = head;
+	Reservation_node* tmp = head;
 	while (tmp != NULL)
 	{
 		flightNode* flight = tmp->flight;
@@ -191,9 +217,9 @@ void Reservation_list::removeAllinFlightReservation(string name, ClientList& cli
 			{
 				string newName = flight->queue->Dequeue();
 				clientNode* waiting = clientlist.retrieve(newName);//¿œº¯¿ß ¥Î±‚¿⁄¿« clientNode ∞°¡Æø¿±‚ 
-				Reservation_client* newNode = new Reservation_client(waiting, flight);
+				Reservation_node* newNode = new Reservation_node(waiting, flight);
 				flight->head->insert_flight(newNode);
-				Reservation_client* tmp = waiting->head->retrieve_client(flight->flightNumber);
+				Reservation_node* tmp = waiting->head->retrieve_client(flight->flightNumber);
 				//πÊ±› øπæ‡µ» ∞Ì∞¥¿« øπæ‡ ∏ÆΩ∫∆Æ∑Œ ∞°º≠ (¥Î±‚)∏¶ (øπæ‡øœ∑·)∑Œ πŸ≤ŸæÓ¡ÿ¥Ÿ.
 				tmp->reservationComplete();
 			}
@@ -214,7 +240,7 @@ void Reservation_list::removeAllinFlightReservation(string name, ClientList& cli
 
 bool Reservation_list::duplicate(string name)const //flight ≥ÎµÂ ±‚¡ÿ¿∏∑Œ ¡ﬂ∫π »Æ¿Œ  
 {
-	Reservation_client* tmp = head;
+	Reservation_node* tmp = head;
 	while (tmp != NULL)
 	{
 		if (tmp->client->Name == name) { return true; }
@@ -231,7 +257,7 @@ bool Reservation_list::isEmpty()const
 
 void Reservation_list::clear()
 {
-	Reservation_client* tmp = head;
+	Reservation_node* tmp = head;
 	while (tmp != NULL)
 	{
 		head = tmp;
@@ -246,7 +272,7 @@ void Reservation_list::clear()
 string Reservation_list::getName()const //øπæ‡∏ÆΩ∫∆Æø° ¿˙¿Âµ» ∏µÁ ¿Ã∏ß string «¸≈¬∑Œ π›»Ø  
 {
 	string str = "";
-	Reservation_client* tmp = head;
+	Reservation_node* tmp = head;
 	while (tmp != NULL)
 	{
 		str.append(tmp->client->Name + "  ");
@@ -258,7 +284,7 @@ string Reservation_list::getName()const //øπæ‡∏ÆΩ∫∆Æø° ¿˙¿Âµ» ∏µÁ ¿Ã∏ß string «
 
 string Reservation_list::getNumbers_reserved()const {//øπæ‡∏ÆΩ∫∆Æø° ¿˙¿Âµ» 'øπæ‡øœ∑·µ»' ∏µÁ ∫Ò«‡±‚ π¯»£ string «¸≈¬∑Œ π›»Ø
 	string str = "";
-	Reservation_client* tmp = head;
+	Reservation_node* tmp = head;
 	while (tmp != NULL)
 	{
 		if (tmp->reserved == true)
@@ -273,7 +299,7 @@ string Reservation_list::getNumbers_reserved()const {//øπæ‡∏ÆΩ∫∆Æø° ¿˙¿Âµ» 'øπæ‡
 string Reservation_list::getNumbers_waiting() const //øπæ‡∏ÆΩ∫∆Æø° ¿˙¿Âµ» ¥Î±‚ªÛ≈¬¿« ∏µÁ ∫Ò«‡±‚ π¯»£ string«¸≈¬∑Œ π›»Ø
 {
 	string str = "";
-	Reservation_client* tmp = head;
+	Reservation_node* tmp = head;
 	while (tmp != NULL)
 	{
 		if (tmp->reserved == false)

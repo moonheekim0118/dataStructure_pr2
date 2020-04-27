@@ -1,4 +1,4 @@
-#include "List.h";
+#include "List.h"
 #include <string>
 #include <fstream>
 /* °í°´¸®½ºÆ® */

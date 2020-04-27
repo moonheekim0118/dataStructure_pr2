@@ -124,16 +124,17 @@ public:
 
 
 
-class Reservation_client  // 예약리스트를 위한 노드 
+class Reservation_node  // 예약리스트를 위한 노드 
 {
 public:
-	Reservation_client(clientNode* client, flightNode* flight); //생성자 
+	Reservation_node(clientNode* client, flightNode* flight); //생성자 
 	bool status()const; //대기상태인지 예약상태인지 알려준다.
 	void reservationComplete(); // 대기상태 - > 예약 완료 상태로 바꾸어주는 함수 
 private:
 	clientNode* client; //고객 노드 
 	flightNode* flight; //비행기편 
-	Reservation_client* next;
+	Reservation_node* next;
+	Reservation_node* prior;
 	bool reserved; //이 예약이 OK되었는지 대기상태를 알리는 flag
 	friend class Reservation_list;
 };
@@ -146,8 +147,8 @@ class Reservation_list  //예약리스트  (고객의 이름 순 정렬)
 public:
 	Reservation_list(); //생성자 
 	~Reservation_list(); //소멸자 
-	void insert_flight(Reservation_client* newNode); //*(비행기) 예약 고객 삽입
-	void insert_client(Reservation_client* newNode, bool done); // *(고객) 예약 비행기 삽입 
+	void insert_flight(Reservation_node* newNode); //*(비행기) 예약 고객 삽입
+	void insert_client(Reservation_node* newNode, bool done); // *(고객) 예약 비행기 삽입 
 	
 	bool remove_flight(string name); //비행기의 예약리스트에서 특정 고객 삭제  
 	void remove_client(string flight_num); //고객의 예약리스트에서 특정 비행기 예약 삭제 
@@ -155,20 +156,20 @@ public:
 	void removeAllinClientReservation(string flightNumber); //해당 비행기number에 예약한 모든 고객 예약 삭제 
 	void removeAllinFlightReservation(string name, ClientList& clientlist); //해당 name의 모든 고객예약을 삭제 
 
-	Reservation_client* retrieve_flight(string name) const; //이름으로 특정 고객 찾기 (비행기 - 예약리스트에서) 
-	Reservation_client* retrieve_client(string flightNumber) const; //비행기 번호로 특정 예약 찾기(고객 -예약리스트에서)
+	Reservation_node* retrieve_flight(string name) const; //이름으로 특정 고객 찾기 (비행기 - 예약리스트에서) 
+	Reservation_node* retrieve_client(string flightNumber) const; //비행기 번호로 특정 예약 찾기(고객 -예약리스트에서)
 	
 
 	bool isEmpty() const;
 	void clear();
 	bool duplicate(string name) const; //중복확인  
-	bool status()const; 
 
 	string getName() const; // 특정 비행기에 예약된 고객 이름 string 형태로 모두 반환 
 	string getNumbers_reserved() const; //특정 고객이 예약한 비행기 번호 string 형태로 모두 반환 
 	string getNumbers_waiting() const; // 특정 고객이 대기중인 비행기 번호 string 형태로 모두 반환 
 	friend class flightNode;
 private:
-	Reservation_client* head;
+	Reservation_node* head;
+	Reservation_node* cursor;
 
 };

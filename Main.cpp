@@ -89,8 +89,8 @@ int main(void)
 
 				}
 				//있다면 고객리스트에서 찾은 고객 노드의 reservation list에 예약정보를 추가해준다 .
-				Reservation_client* newReservation1 = new Reservation_client(client, flight); //비행기노드의 예약리스트를 위한 노드 
-				Reservation_client* newReservation2 = new Reservation_client(client, flight); //고객노드의 예약리스트를 위한 노드 
+				Reservation_node* newReservation1 = new Reservation_node(client, flight); //비행기노드의 예약리스트를 위한 노드 
+				Reservation_node* newReservation2 = new Reservation_node(client, flight); //고객노드의 예약리스트를 위한 노드 
 				if (flight->reservation_statusUpdate()) //예약 가능 
 				{
 					flight->head->insert_flight(newReservation1); // 비행기의 예약 리스트에 해당 고객 삽입 
@@ -127,9 +127,9 @@ int main(void)
 					{
 						string waitingList = flight->queue->Dequeue(); //대기 일순위 가져오기 
 						clientNode* waiting = clientlist.retrieve(waitingList); //해당 대기 고객의 고객 노드 가져오기 
-						Reservation_client* newNode = new Reservation_client(waiting, flight);
+						Reservation_node* newNode = new Reservation_node(waiting, flight);
 						flight->head->insert_flight(newNode); //비행기의 예약리스트에 추가
-						Reservation_client* tmp = waiting->head->retrieve_client(flightnum);
+						Reservation_node* tmp = waiting->head->retrieve_client(flightnum);
 						tmp->reservationComplete(); //해당 client의 reservation 상태를 대기에서 예약완료로 바꾼다. 
 					}
 					else  //대기 인원이 없으면 
