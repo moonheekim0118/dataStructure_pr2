@@ -1,0 +1,25 @@
+IF 0056 Lafayette Detroit 004
+IF 1234 Chicago Baltimore 006
+IF 0196 Dayton Indianapolis 003
+PA
+RP Smith 0056
+RP Hubbard 0196
+RP Jones 0056
+RP Churchill 0056
+RP Sauvage 0056
+RP Smith 0196
+RP Smith 0056
+RP Smith 1234
+RP Jones 0196
+RP Hubbard 0056
+PF
+PR 0056
+PP Smith
+CP Churchill 0056
+RP Churchill 0196
+RP Wiley 0196
+PA
+CP Smith 0
+PR 0196
+DF 0196
+PA
