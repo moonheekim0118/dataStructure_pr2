@@ -85,6 +85,9 @@ void Flight_list::insert(flightNode* newNode) //비행편 추가  //번호순 정렬
 		{
 			tmpBefore->next_flight = newNode;
 		}
+		if (tmpBefore == NULL) {
+			head = newNode;
+		}
 		if (tmp != NULL) {
 			tmp->prior_flight = newNode;
 		}

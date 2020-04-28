@@ -65,7 +65,7 @@ private:
 };
 
 
-class Flight_list  //비행기 리스트 [비행기 번호 순 정렬]
+class Flight_list  //비행기 리스트 [비행기 번호 순 정렬] 이중연결리스트
 {
 
 public:
@@ -100,12 +100,11 @@ private:
 	clientNode* next;  //다음 고객에 대한 포인터  
 
 	friend class ClientList;
-	friend class Reservation_client;
 	friend class Reservation_list;
 };
 
 
-class ClientList {   //고객 정보 리스트 
+class ClientList {   //고객 정보 리스트  이중연결리스트 
 private:
 	clientNode* head;
 	clientNode* cursor;
@@ -140,8 +139,8 @@ private:
 };
 
 
-
-class Reservation_list  //예약리스트  (고객의 이름 순 정렬)
+ 
+class Reservation_list  //예약리스트  (고객의 이름 순 정렬) 이중연결리스트 
 {
 
 public:
@@ -167,9 +166,6 @@ public:
 	string getName() const; // 특정 비행기에 예약된 고객 이름 string 형태로 모두 반환 
 	string getNumbers_reserved() const; //특정 고객이 예약한 비행기 번호 string 형태로 모두 반환 
 	string getNumbers_waiting() const; // 특정 고객이 대기중인 비행기 번호 string 형태로 모두 반환 
-	friend class flightNode;
 private:
 	Reservation_node* head;
-	Reservation_node* cursor;
-
 };

@@ -17,8 +17,8 @@ int main(void)
 			char* infoPtr[5] = { NULL, };
 			getline(in, str); //한줄씩 읽어오기 
 			cout << str << endl;
-			string cmd = str; //앞에 두글자가 명령어
-			cmd = cmd.substr(0, 2);
+			 //앞에 두글자가 명령어
+			string cmd = str.substr(0, 2);
 
 			char info[100];
 			if (str.length() >= 3) {

@@ -21,11 +21,9 @@ bool Reservation_node::status()const
 	                 //예약 - true 반환 
 }
 
-
 Reservation_list::Reservation_list() //생성자 
 {
 	this->head = NULL;
-	this->cursor = NULL;
 }
 Reservation_list::~Reservation_list() { //소멸자 
 	clear();
@@ -33,7 +31,6 @@ Reservation_list::~Reservation_list() { //소멸자
 
 void Reservation_list::insert_flight(Reservation_node* newNode) //해당 비행기에 예약 고객 삽입 
 {
-
 
 	if (isEmpty()) { //가장 첫 노드라면 바로 head로 해주고 끝 
 		head = newNode;
@@ -53,8 +50,8 @@ void Reservation_list::insert_flight(Reservation_node* newNode) //해당 비행기에 
 		tmp_before = tmp;
 		tmp = tmp->next;
 	}
-	newNode->prior= tmp_before;
-	newNode->next= tmp;
+	newNode->prior = tmp_before;
+	newNode->next = tmp;
 
 	if (tmp_before != NULL)
 	{
@@ -65,9 +62,8 @@ void Reservation_list::insert_flight(Reservation_node* newNode) //해당 비행기에 
 		head = newNode;
 	}
 	if (tmp != NULL) {
-		tmp->prior= newNode;
+		tmp->prior = newNode;
 	}
-
 }
 
 void Reservation_list::insert_client(Reservation_node* newNode, bool done) //고객별 예약리스트에 예약 삽입 비행기 번호순 
@@ -136,7 +132,6 @@ bool Reservation_list::remove_flight(string name) //비행기의 예약리스트에서 특정
 	if (data->next!= NULL) { //next가 null값이 아니라면 
 		data->next->prior= data->prior;
 	}
-	cout << "완료" << endl;
 	delete data;
 	return true;
 }
